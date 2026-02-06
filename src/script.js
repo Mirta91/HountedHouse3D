@@ -363,6 +363,32 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+//activate shadows
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
+directionalLight.castShadow = true
+fireflies.castShadow = true
+house.children.forEach(child => child.castShadow = true)
+house.children.forEach(child => child.receiveShadow = true)
+
+floor.receiveShadow = true 
+for(const grave of graves.children) {
+    grave.castShadow = true
+    grave.receiveShadow = true
+}
+
+//optimize shadows
+directionalLight.shadow.mapSize.width = 256 
+directionalLight.shadow.mapSize.height = 256
+directionalLight.shadow.camera.near = 1
+directionalLight.shadow.camera.far = 20
+directionalLight.shadow.camera.left = -8
+directionalLight.shadow.camera.right = 8
+directionalLight.shadow.camera.top = 15
+directionalLight.shadow.camera.bottom = -8
+
+
 /**
  * Animate
  */
