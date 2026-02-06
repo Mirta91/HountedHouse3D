@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Timer } from 'three/addons/misc/Timer.js'
+import { Sky } from 'three/addons/objects/Sky.js'
 import GUI from 'lil-gui'
 
 /**
@@ -371,8 +372,8 @@ directionalLight.castShadow = true
 fireflies.castShadow = true
 house.children.forEach(child => child.castShadow = true)
 house.children.forEach(child => child.receiveShadow = true)
-
 floor.receiveShadow = true 
+
 for(const grave of graves.children) {
     grave.castShadow = true
     grave.receiveShadow = true
@@ -388,7 +389,26 @@ directionalLight.shadow.camera.right = 8
 directionalLight.shadow.camera.top = 15
 directionalLight.shadow.camera.bottom = -8
 
+const sky = new Sky()
+sky.material.uniforms['turbidity'].value = 10
+sky.material.uniforms['rayleigh'].value = 3
+sky.material.uniforms['mieCoefficient'].value = 0.1
+sky.material.uniforms['mieDirectionalG'].value = 0.95
+sky.material.uniforms['sunPosition'].value.set(0.3, -0.038, -0.95)
+sky.scale.set(50, 50, 50)
+scene.add(sky)
 
+gui.add(sky.material.uniforms['turbidity'], 'value').min(0).max(20).step(0.1).name('skyTurbidity')
+gui.add(sky.material.uniforms['rayleigh'], 'value').min(0).max(10).step(0.1).name('skyRayleigh')
+gui.add(sky.material.uniforms['mieCoefficient'], 'value').min(0).max(0.2).step(0.001).name('skyMieCoefficient')
+gui.add(sky.material.uniforms['mieDirectionalG'], 'value').min(0).max(1).step(0.001).name('skyMieDirectionalG')
+gui.add(sky.material.uniforms['sunPosition'].value, 'x').min(-1).max(1).step(0.001).name('skySunX')
+gui.add(sky.material.uniforms['sunPosition'].value, 'y').min(-1).max(1).step(0.001).name('skySunY')
+gui.add(sky.material.uniforms['sunPosition'].value, 'z').min(-1).max(1).step(0.001).name('skySunZ')
+
+//const fog = new THREE.Fog('#ff0000', 1, 15)
+const fog = new THREE.FogExp2('#03343f',0.08)
+scene.fog = fog
 /**
  * Animate
  */
