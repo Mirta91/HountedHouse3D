@@ -19,6 +19,7 @@ const scene = new THREE.Scene()
 
 // Textures
 const textureLoader = new THREE.TextureLoader()
+const fireflyTexture = textureLoader.load('./firefly.png')
 const floorAlphaTexture = textureLoader.load('./floor/alpha.jpg')
 const floorColorTexture = textureLoader.load('./floor/forest_leaves_02_1k/forest_leaves_02_diffuse_1k.jpg')
 const floorARMTexture = textureLoader.load('./floor/forest_leaves_02_1k/forest_leaves_02_arm_1k.jpg')
@@ -44,15 +45,14 @@ floorColorTexture.colorSpace = THREE.SRGBColorSpace
 
 
 // wall textures
-const wallColorTexture = textureLoader.load('./wall/worn_mossy_plasterwall_1k/worn_mossy_plasterwall_diff_1k.jpg')
+/* const wallColorTexture = textureLoader.load('./wall/worn_mossy_plasterwall_1k/worn_mossy_plasterwall_diff_1k.jpg')
 const wallARMTexture = textureLoader.load('./wall/worn_mossy_plasterwall_1k/worn_mossy_plasterwall_arm_1k.jpg')
 const wallNormalTexture = textureLoader.load('./wall/worn_mossy_plasterwall_1k/worn_mossy_plasterwall_nor_gl_1k.jpg')
 const wallDisplacementTexture = textureLoader.load('./wall/worn_mossy_plasterwall_1k/worn_mossy_plasterwall_disp_1k.jpg')
-
+ */
 const wallColorTexture2 = textureLoader.load('./wall/cracked_concrete_wall_1k/cracked_concrete_wall_diff_1k.jpg')
 const wallARMTexture2 = textureLoader.load('./wall/cracked_concrete_wall_1k/cracked_concrete_wall_arm_1k.jpg')
 const wallNormalTexture2 = textureLoader.load('./wall/cracked_concrete_wall_1k/cracked_concrete_wall_nor_gl_1k.jpg')
-const wallDisplacementTexture2 = textureLoader.load('./wall/cracked_concrete_wall_1k/cracked_concrete_wall_disp_1k.jpg')
 
 wallColorTexture2.colorSpace = THREE.SRGBColorSpace
 
@@ -145,7 +145,7 @@ const walls = new THREE.Mesh(
             aoMap: wallARMTexture2,
             roughnessMap: wallARMTexture2,
             metalnessMap: wallARMTexture2,
-            normalMap: wallNormalTexture2,
+            normalMap: wallNormalTexture2
 
         }
     )
@@ -259,21 +259,13 @@ for (let i = 0; i < 20; i++) {
     graves.add(grave)
 }
 // Fireflies
-/* const fireflyGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2)
-const fireflyMaterial = new THREE.MeshStandardMaterial({
-    map: graveColorTexture,
-    aoMap: graveARMTexture,
-    roughnessMap: graveARMTexture,
-    metalnessMap: graveARMTexture,
-    normalMap: graveNormalTexture
-}) */
 const fireflies = new THREE.Group()
 scene.add(fireflies)
 
 for (let i = 0; i < 10; i++) {
-    const light = new THREE.PointLight('#fff672', 1.5, 6, 2)
+    const firefly = new THREE.PointLight('#fff672', 1.5, 6, 2)
 
-    light.position.set(
+    firefly.position.set(
         (Math.random() - 0.5) * 12,
         1.5 + Math.random(),
         (Math.random() - 0.5) * 12
@@ -281,6 +273,7 @@ for (let i = 0; i < 10; i++) {
 
     const sprite = new THREE.Sprite(
         new THREE.SpriteMaterial({
+            map: fireflyTexture,
             color: 0xfff672,
             transparent: true,
             opacity: 0.8,
@@ -288,18 +281,20 @@ for (let i = 0; i < 10; i++) {
             depthWrite: false
         })
     )
-    sprite.scale.set(0.15, 0.15, 1)
-    light.add(sprite)
+    
+    const size = 0.1 + Math.random() * 0.15
+    sprite.scale.set(size, size, 1)
+    firefly.add(sprite)
 
     // Firefly behavior data
-    light.userData = {
+    firefly.userData = {
         angle: Math.random() * Math.PI * 2,
         speed: 0.2 + Math.random() * 0.5,
         radius: 0.5 + Math.random() * 1.5,
         heightOffset: Math.random() * Math.PI * 2
     }
 
-    fireflies.add(light)
+    fireflies.add(firefly)
 }
 /**
  * Lights
@@ -418,22 +413,22 @@ const tick = () =>
     timer.update()
     const elapsedTime = timer.getElapsed()
 
-    fireflies.children.forEach((light) =>
+    fireflies.children.forEach((firefly) =>
     {
-        const d = light.userData
+        const d = firefly.userData
 
         // Horizontal wandering
         d.angle += d.speed * 0.01
-        light.position.x += Math.cos(d.angle) * 0.01
-        light.position.z += Math.sin(d.angle) * 0.01
+        firefly.position.x += Math.cos(d.angle) * 0.01
+        firefly.position.z += Math.sin(d.angle) * 0.01
 
         // Vertical bobbing
-        light.position.y =
+        firefly.position.y =
             1.5 +
             Math.sin(elapsedTime * 2 + d.heightOffset) * 0.4
 
         // Flicker
-        light.intensity =
+        firefly.intensity =
             1.2 +
             Math.sin(elapsedTime * 8 + d.heightOffset) * 0.4 +
             Math.random() * 0.1
